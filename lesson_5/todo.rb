@@ -55,3 +55,32 @@ get "/lists/:id" do |id|
   @list = session[:lists][id.to_i]
   erb :list
 end
+
+# Edit an existing todo list
+get "/lists/:id/edit" do |id|
+  @list = session[:lists][id.to_i]
+  erb :edit_list
+end
+
+# Update an existing todo list
+post "/lists/:id" do |id|
+  list_name = params[:list_name].strip
+  error = error_for_list_name(list_name)
+  @list = session[:lists][id.to_i]
+
+  if error
+    session[:error] = error
+    erb :edit_list
+  else
+    @list[:name] = list_name
+    session[:success] = "The list has been updated."
+    redirect "/lists/#{id}"
+  end
+end
+
+# Delete an existing todo list
+post "/lists/:id/destroy" do |id|
+  session[:lists].delete_at(id.to_i)
+  session[:success] = "The list has been deleted."
+  redirect "/lists"
+end
