@@ -2,13 +2,38 @@
   <header>
     <h2><%= @list[:name] %></h2>
     <ul>
-      <li><a href="/lists/<%= params[:id] %>/edit" class="edit">
+      <li><a href="/lists/<%= @list_id %>/edit" class="edit">
         Edit List
       </a></li>
     </ul>
   </header>
+
+  <ul>
+    <% @list[:todos].each_with_index do |todo, index| %>
+      <li>
+        <h3><%= todo[:name] %></h3>
+        <form action="/lists/<%= @list_id %>/todos/<%= index %>/destroy" method="post" class="delete">
+          <button type="Submit">Delete</button>
+        </form>
+      </li>
+    <% end %>
+  </ul>
 </section>
 
+<form action="/lists/<%= @list_id %>/todos" method="post">
+  <dl>
+    <dt>
+      <label for="todo">Enter a new todo item:</label>
+    </dt>
+    <dd>
+      <input name="todo" placeholder="Something to do" type="text" value="<%= params[:todo] %>">
+    </dd>
+  </dl>
+  <fieldset class="actions">
+    <input type="submit" value="Add">
+  </fieldset>
+</form>
+
 <% content_for :header_links do %>
-  <a href="/lists">All Lists</a>
+  <a href="/lists" class="list">All Lists</a>
 <% end %>
