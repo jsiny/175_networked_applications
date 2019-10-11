@@ -6,6 +6,7 @@ require "tilt/erubis"
 configure do
   enable :sessions
   set :session_secret, 'secret'
+  set :erb, :escape_html => true
 end
 
 before do
@@ -15,13 +16,13 @@ end
 
 before "/lists/:list_id*" do
   @list_id = params[:list_id].to_i
-  @list    = @lists[@list_id]
+  @list    = load_list(@list_id)
   @todos   = @list[:todos]
 end
 
 before "/lists/:list_id/todos/:todo_id*" do
   @list_id = params[:list_id].to_i
-  @list    = @lists[@list_id]
+  @list    = load_list(@list_id)
   @todos   = @list[:todos]
   @todo_id = params[:todo_id].to_i
   @todo    = @todos[@todo_id]
@@ -57,6 +58,13 @@ helpers do
     incomplete_todos.each { |todo| yield todo, todos.index(todo) }
     complete_todos.each   { |todo| yield todo, todos.index(todo) }
   end
+end
+
+def load_list(index)
+  return @lists[@list_id] if @lists[@list_id]
+
+  session[:error] = "The specified list was not found"
+  redirect "/lists"
 end
 
 get "/" do
