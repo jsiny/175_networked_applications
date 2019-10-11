@@ -12,6 +12,38 @@ before do
   session[:lists] ||= []
 end
 
+helpers do
+  def list_complete?(list)
+    todos_count(list) > 0 && todos_remaining_count(list).zero?
+  end
+
+  def list_class(list)
+    "complete" if list_complete?(list)
+  end
+
+  def todos_count(list)
+    list[:todos].size
+  end
+
+  def todos_remaining_count(list)
+    list[:todos].reject { |todo| todo[:completed] }.size
+  end
+
+  def sort_lists(lists, &block)
+    complete_lists, incomplete_lists = lists.partition { |list| list_complete?(list) }
+
+    incomplete_lists.each { |list| yield list, lists.index(list) }
+    complete_lists.each   { |list| yield list, lists.index(list) }
+  end
+
+  def sort_todos(todos, &block)
+    complete_todos, incomplete_todos = todos.partition { |todo| todo[:completed] }
+
+    incomplete_todos.each { |todo| yield todo, todos.index(todo) }
+    complete_todos.each   { |todo| yield todo, todos.index(todo) }
+  end
+end
+
 get "/" do
   redirect "/lists"
 end
@@ -133,4 +165,17 @@ post "/lists/:list_id/todos/:id" do
   @list[:todos][todo_id][:completed] = is_completed
   session[:success] = "The to-do has been updated."
   redirect "/lists/#{@list_id}"
+end
+
+# Mark all todos as complete for a list
+post "/lists/:id/complete_all" do
+  @id = params[:id].to_i
+  @list = session[:lists][@id]
+
+  @list[:todos].each do |todo|
+    todo[:completed] = true
+  end
+
+  session[:success] = "All the to-dos have been completed."
+  redirect "/lists/#{@id}"
 end
