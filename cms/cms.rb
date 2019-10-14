@@ -10,7 +10,6 @@ end
 
 before do
   pattern = File.join(data_path, "*")
-  # @root = File.expand_path("..", __FILE__)
   @files = Dir.glob(pattern).map { |file| File.basename(file) }
 end
 
@@ -44,10 +43,31 @@ def data_path
   end
 end
 
+# Access the index
 get "/" do
   erb :index
 end
 
+# Create new doc
+get "/new" do
+  erb :new
+end
+
+post "/create" do
+  @filename = params[:filename]
+
+  if @filename.empty?
+    session[:message] = "A name is required."
+    status 422
+    erb :new
+  else
+    FileUtils.touch(File.join(data_path, @filename))
+    session[:message] = "#{@filename} was created."
+    redirect "/"
+  end
+end
+
+# View a specific file
 get "/:file" do
   if @files.include? @file
     load_file_content(@file_path)
@@ -57,12 +77,14 @@ get "/:file" do
   end
 end
 
+# Edit a file (form)
 get "/:file/edit" do
   @content = File.read(@file_path)
 
-  erb :edit_file
+  erb :edit
 end
 
+# Edit a file (submit)
 post "/:file" do
   File.write(@file_path, params[:content])
 
