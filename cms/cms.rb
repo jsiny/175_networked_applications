@@ -43,24 +43,34 @@ def data_path
   end
 end
 
+def error_for_invalid_filename(name)
+  return "A name is required." if name.size.zero?
+
+  split = name.split(".")
+  if split.size != 2 || !split.last =~ /(txt|md)/
+    return "The file name must end with .txt or .md"
+  end
+end
+
 # Access the index
 get "/" do
   erb :index
 end
 
-# Create new doc
+# Create new document
 get "/new" do
   erb :new
 end
 
+# Save this new document
 post "/create" do
-  @filename = params[:filename]
+  @filename = params[:filename].to_s
+  session[:message] = error_for_invalid_filename(@filename)
 
-  if @filename.empty?
-    session[:message] = "A name is required."
+  if session[:message]
     status 422
     erb :new
-  else
+  else 
     FileUtils.touch(File.join(data_path, @filename))
     session[:message] = "#{@filename} was created."
     redirect "/"
