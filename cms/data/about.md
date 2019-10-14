@@ -1,4 +1,6 @@
-David Attenborough, in full Sir David Frederick Attenborough, (born May 8, 1926,
+# David Attenborough
+
+**David Attenborough**, in full Sir David Frederick Attenborough, (born May 8, 1926,
 London, England), English broadcaster, writer, and naturalist noted for his 
 innovative educational television programs, especially the nine-part Life 
 series.

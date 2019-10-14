@@ -10,6 +10,7 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
+    redcarpet (3.5.0)
     sinatra (2.0.7)
       mustermann (~> 1.0)
       rack (~> 2.0)
@@ -31,6 +32,7 @@ DEPENDENCIES
   erubis
   rack
   rack-test
+  redcarpet
   sinatra
   sinatra-contrib
 
