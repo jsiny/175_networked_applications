@@ -4,6 +4,7 @@ require "minitest/autorun"
 require "minitest/reporters"
 Minitest::Reporters.use!
 require "rack/test"
+require "fileutils"
 
 require_relative "../cms"
 
@@ -12,6 +13,24 @@ class CMSTest < Minitest::Test
 
   def app
     Sinatra::Application
+  end
+
+  def setup
+    FileUtils.mkdir_p(data_path)
+
+    create_document("about.md", "# David Attenborough")
+    create_document("changes.txt", "Africa, the world's wildest continent.")
+    create_document("history.md")
+  end
+
+  def teardown
+    FileUtils.rm_rf(data_path)
+  end
+
+  def create_document(name, content = "")
+    File.open(File.join(data_path, name), "w") do |file|
+      file.write(content)
+    end
   end
 
   def test_index
@@ -67,9 +86,5 @@ class CMSTest < Minitest::Test
     get "/changes.txt"
     assert_equal 200, last_response.status
     assert_includes last_response.body, "new content"
-  end
-
-  def teardown
-    post "/changes.txt", content: "Africa, the world's wildest continent."
   end
 end
