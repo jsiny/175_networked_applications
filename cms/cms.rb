@@ -9,13 +9,14 @@ configure do
 end
 
 before do
-  @root = File.expand_path("..", __FILE__)
-  @files = Dir.glob(@root + "/data/*").map { |file| File.basename(file) }
+  pattern = File.join(data_path, "*")
+  # @root = File.expand_path("..", __FILE__)
+  @files = Dir.glob(pattern).map { |file| File.basename(file) }
 end
 
 before "/:file*" do
   @file = params[:file]
-  @file_path = "data/#{@file}"
+  @file_path = File.join(data_path, @file)
 end
 
 def render_markdown(text)
@@ -32,6 +33,14 @@ def load_file_content(path)
     content
   when ".md"
     render_markdown(content)
+  end
+end
+
+def data_path
+  if ENV["RACK_ENV"] == 'test'
+    File.expand_path('../test/data', __FILE__)
+  else
+    File.expand_path('../data', __FILE__)
   end
 end
 
