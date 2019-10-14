@@ -15,6 +15,7 @@ end
 
 before "/:file*" do
   @file = params[:file]
+  @file_path = "data/#{@file}"
 end
 
 def render_markdown(text)
@@ -40,7 +41,7 @@ end
 
 get "/:file" do
   if @files.include? @file
-    load_file_content("data/#{@file}")
+    load_file_content(@file_path)
   else
     session[:message] = "#{@file} does not exist."
     redirect "/"
@@ -48,13 +49,13 @@ get "/:file" do
 end
 
 get "/:file/edit" do
-  @content = File.read("data/#{@file}")
+  @content = File.read(@file_path)
 
   erb :edit_file
 end
 
 post "/:file" do
-  File.write("data/#{@file}", params[:content])
+  File.write(@file_path, params[:content])
 
   session[:message] = "#{@file} has been updated."
   redirect "/"
