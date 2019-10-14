@@ -55,6 +55,7 @@ class CMSTest < Minitest::Test
 
     get last_response["Location"]
     assert_includes last_response.body, "notafile.txt does not exist"
+    assert_includes last_response.body, %q(class="message")
 
     get "/"
     refute_includes last_response.body, "notafile.txt does not exist"
