@@ -1,0 +1,12 @@
+<html>
+  <head>
+    <title>CMS</title>
+    <link rel="stylesheet" href="/style.css" type="text/css">
+  </head>
+  <body>
+    <% if session[:message] %>
+      <p class="message"><%= session.delete(:message) %></p>
+    <% end %>
+    <%= yield %>
+  </body>
+</html>
