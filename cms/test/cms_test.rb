@@ -42,7 +42,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "history.md" 
   end
 
-  def test_viewing_text_document
+  def test_view_text_document
     get "/changes.txt"
     assert_equal 200, last_response.status
     assert_equal "text/plain", last_response["Content-Type"]
@@ -61,7 +61,7 @@ class CMSTest < Minitest::Test
     refute_includes last_response.body, "notafile.txt does not exist"
   end
 
-  def test_viewing_markdown_document
+  def test_view_markdown_document
     get "/about.md"
 
     assert_equal 200, last_response.status
@@ -69,7 +69,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "<h1>David Attenborough</h1>"
   end
 
-  def test_editing_document
+  def test_edit_document
     get "/changes.txt/edit"
 
     assert_equal 200, last_response.status
@@ -77,7 +77,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "<button type=\"submit\">"
   end
 
-  def test_updating_document
+  def test_update_document
     post "/changes.txt", content: "new content"
     assert_equal 302, last_response.status
 
@@ -87,5 +87,30 @@ class CMSTest < Minitest::Test
     get "/changes.txt"
     assert_equal 200, last_response.status
     assert_includes last_response.body, "new content"
+  end
+
+  def test_view_new_document_form
+    get "/new"
+    
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<input "
+    assert_includes last_response.body, %q(<button type="submit")
+  end
+
+  def test_create_new_document
+    post "/create", filename: "test.txt"
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "test.txt was created."
+
+    get "/"
+    assert_includes last_response.body, "test.txt"
+  end
+
+  def test_create_new_document_without_filename
+    post "/create", filename: ""
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "A name is required."
   end
 end
