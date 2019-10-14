@@ -13,6 +13,10 @@ before do
   @files = Dir.glob(@root + "/data/*").map { |file| File.basename(file) }
 end
 
+before "/:file*" do
+  @file = params[:file]
+end
+
 def render_markdown(text)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   markdown.render(text)
@@ -35,14 +39,23 @@ get "/" do
 end
 
 get "/:file" do
-  @file = params[:file]
-
   if @files.include? @file
     load_file_content("data/#{@file}")
-    # headers["Content-Type"] = "text/plain"
-    # File.read("data/#{@file}")
   else
     session[:message] = "#{@file} does not exist."
     redirect "/"
   end
+end
+
+get "/:file/edit" do
+  @content = File.read("data/#{@file}")
+
+  erb :edit_file
+end
+
+post "/:file" do
+  File.write("data/#{@file}", params[:content])
+
+  session[:message] = "#{@file} has been updated."
+  redirect "/"
 end
