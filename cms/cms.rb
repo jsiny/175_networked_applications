@@ -52,19 +52,32 @@ def error_for_invalid_filename(name)
   end
 end
 
+def signed_in_user?
+  session.key?(:username)
+end
+
+def require_signed_in_user
+  unless signed_in_user?
+    session[:message] = "You must be signed in to do that."
+    redirect "/"
+  end
+end
+
 # Access the index
 get "/" do
-  # session[:username] ? (erb :index) : (erb :signin)
   erb :index
 end
 
 # Create new document
 get "/new" do
+  require_signed_in_user
   erb :new
 end
 
 # Save this new document
 post "/create" do
+  require_signed_in_user
+
   @filename = params[:filename].to_s
   session[:message] = error_for_invalid_filename(@filename)
 
@@ -80,7 +93,8 @@ end
 
 # Delete a document
 post "/:file/destroy" do
-  # @files.reject! { |filename| filename == @file }
+  require_signed_in_user
+
   File.delete(@file_path)
 
   session[:message] = "#{@file} was deleted"
@@ -124,6 +138,8 @@ end
 
 # Edit a file (form)
 get "/:file/edit" do
+  require_signed_in_user
+
   @content = File.read(@file_path)
 
   erb :edit
@@ -131,6 +147,8 @@ end
 
 # Edit a file (submit)
 post "/:file" do
+  require_signed_in_user
+
   File.write(@file_path, params[:content])
 
   session[:message] = "#{@file} has been updated."
