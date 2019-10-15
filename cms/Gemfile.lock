@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     backports (3.15.0)
+    bcrypt (3.1.13)
     erubis (2.7.0)
     multi_json (1.14.0)
     mustermann (1.0.3)
@@ -29,6 +30,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bcrypt
   erubis
   rack
   rack-test
