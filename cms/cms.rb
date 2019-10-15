@@ -54,6 +54,7 @@ end
 
 # Access the index
 get "/" do
+  # session[:username] ? (erb :index) : (erb :signin)
   erb :index
 end
 
@@ -75,6 +76,40 @@ post "/create" do
     session[:message] = "#{@filename} was created."
     redirect "/"
   end
+end
+
+# Delete a document
+post "/:file/destroy" do
+  # @files.reject! { |filename| filename == @file }
+  File.delete(@file_path)
+
+  session[:message] = "#{@file} was deleted"
+  redirect "/"
+end
+
+# Login page
+get "/users/signin" do
+  erb :signin
+end
+
+# Login
+post "/users/signin" do
+  if params[:username] == "admin" && params[:password] == "secret"
+    session[:username] = params[:username]
+    session[:message] = "Welcome!"
+    redirect "/"
+  else
+    session[:message] = "Invalid credentials"
+    status 422
+    erb :signin
+  end
+end
+
+# Logout
+post "/users/signout" do
+  session.delete(:username)
+  session[:message] = "You have been signed out."
+  redirect "/"
 end
 
 # View a specific file

@@ -3,7 +3,16 @@ body {
   font-family: sans-serif;
 }
 
+form.inline {
+  display: inline;
+}
+
 .message {
   padding: 10px;
   background: #FFFF99;
+}
+
+.user-status {
+  font-style: italic;
+  font-size: 0.9em;
 }
