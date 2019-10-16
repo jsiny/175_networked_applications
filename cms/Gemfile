@@ -7,5 +7,7 @@ gem "rack"
 gem "rack-test"
 gem "redcarpet"
 gem "bcrypt"
+gem "minitest"
+gem "minitest-reporters"
 
 ruby "2.6.3"
