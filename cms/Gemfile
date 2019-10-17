@@ -8,4 +8,4 @@ gem "rack-test"
 gem "redcarpet"
 gem "bcrypt"
 
-ruby "2.6.3"
+ruby "2.6.5"
