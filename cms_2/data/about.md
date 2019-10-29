@@ -1,5 +1,5 @@
-Barbara Joan "Barbra" Streisand (/ˈstraɪsænd/; born April 24, 1942) is an 
-American singer, musician, actress, and filmmaker. In a career spanning six 
+**Barbara Joan "Barbra" Streisand** (/ˈstraɪsænd/; born April 24, 1942) is an 
+*American singer, musician, actress, and filmmaker*. In a career spanning six 
 decades, she has achieved success in multiple fields of entertainment and has 
 been recognized with two Academy Awards, ten Grammy Awards including the Grammy
 Lifetime Achievement Award and the Grammy Legend Award, five Emmy Awards 
