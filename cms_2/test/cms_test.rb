@@ -38,6 +38,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "Edit</a>"
     assert_includes last_response.body, "New Document</a>"
     assert_includes last_response.body, "Delete</button>"
+    assert_includes last_response.body, "Sign In"
   end
 
   def test_access_history
@@ -130,6 +131,50 @@ class CMSTest < Minitest::Test
 
     get '/'
     refute_includes last_response.body, "changes.txt"
+  end
+
+  def test_signin_form
+    get '/users/signin'
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Username:"
+    assert_includes last_response.body, "<input type='password'"
+    assert_includes last_response.body, %q(<button type="submit">Sign In)
+  end
+
+  def test_signing_in
+    post '/users/signin', username: 'admin', password: 'secret'
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Welcome!"
+    
+    get '/'
+    assert_includes last_response.body, "Signed in as admin"
+    assert_includes last_response.body, "Sign Out"
+    refute_includes last_response.body, "Sign In"
+  end
+
+  def test_signing_in_with_invalid_credentials
+    post '/users/signin', username: 'invalid_username', password: 'foobar'
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Invalid credentials"
+    assert_includes last_response.body, "invalid_username"
+  end
+
+  def test_signout
+    post '/users/signin', username: 'admin', password: 'secret'
+    get '/'
+    
+    post '/users/signout'
+    assert_equal 302, last_response.status
+    
+    get last_response['Location']
+    assert_includes last_response.body, "You have been signed out."
+    assert_includes last_response.body, "Sign In"
+    refute_includes last_response.body, "Sign Out"    
   end
 
   def teardown

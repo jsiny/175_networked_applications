@@ -87,7 +87,7 @@ get '/:file' do
     load_file_content(@file_path)
   else
     session[:message] = "#{@file} does not exist."
-    status = 404
+    status 404
   end
 end
 
@@ -102,6 +102,34 @@ post '/:file' do
   File.write(@file_path, params[:content])
 
   session[:message] = "#{@file} has been updated."
+  redirect '/'
+end
+
+# Form to log-in
+get '/users/signin' do
+  erb :signin, layout: :layout
+end
+
+# Sends credentials to log in
+post '/users/signin' do
+  username = params[:username]
+  password = params[:password]
+
+  if username == 'admin' && password == 'secret'
+    session[:username] = username
+    session[:message]  = "Welcome!"
+    redirect '/'
+  else
+    session[:message]  = "Invalid credentials"
+    status 422
+    erb :signin
+  end
+end
+
+# Logs out a user
+post '/users/signout' do
+  session.delete(:username)
+  session[:message] = "You have been signed out."
   redirect '/'
 end
 
