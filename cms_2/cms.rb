@@ -74,6 +74,13 @@ post '/create' do
   end
 end
 
+# Delete a document
+post '/:file/destroy' do
+  File.delete(@file_path)
+  session[:message] = "#{@file} was deleted."
+  redirect '/'
+end
+
 # View a specific file
 get '/:file' do
   if @files.include?(@file)
