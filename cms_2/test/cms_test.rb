@@ -16,6 +16,7 @@ class CMSTest < Minitest::Test
 
   def setup
     FileUtils.mkdir_p(data_path)
+
     create_document("about.md", "<strong>Barbara Joan")
     create_document "changes.txt"
     create_document("history.txt", "Color Me Barbra")
@@ -36,6 +37,7 @@ class CMSTest < Minitest::Test
     end
     assert_includes last_response.body, "Edit</a>"
     assert_includes last_response.body, "New Document</a>"
+    assert_includes last_response.body, "Delete</button>"
   end
 
   def test_access_history
@@ -95,7 +97,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_create_new_document
-    post '/new', name: 'new_file.txt'
+    post '/create', name: 'new_file.txt'
     assert_equal 302, last_response.status
 
     get last_response['Location']
@@ -107,15 +109,27 @@ class CMSTest < Minitest::Test
   end
 
   def test_attempt_to_create_empty_document
-    post '/new', name: ''
+    post '/create', name: ''
     assert_equal 422, last_response.status
     assert_includes last_response.body, "A name is required"
   end
 
   def test_attempt_to_create_document_without_extension
-    post '/new', name: 'file'
+    post '/create', name: 'file'
     assert_equal 422, last_response.status
     assert_includes last_response.body, "A file must have an extension"
+  end
+
+  def test_delete_document
+    post '/changes.txt/destroy'
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "changes.txt was deleted"
+
+    get '/'
+    refute_includes last_response.body, "changes.txt"
   end
 
   def teardown
