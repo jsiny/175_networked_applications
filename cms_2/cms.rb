@@ -3,6 +3,7 @@ require 'sinatra/reloader'
 require 'tilt/erubis'
 require 'redcarpet'
 require 'yaml'
+require 'bcrypt'
 
 root = File.expand_path("..", __FILE__)
 
@@ -65,6 +66,13 @@ def load_user_credentials
   path = ENV['RACK_ENV'] == 'test' ? '../test/users.yml' : '../users.yml'
   credentials_path = File.expand_path(path, __FILE__)
   YAML.load_file(credentials_path)
+end
+
+def valid_credentials?(username, password)
+  credentials = load_user_credentials
+
+  credentials.key?(username) && \
+  BCrypt::Password.new(credentials[username]) == params[:password]
 end
 
 # Access list of files
@@ -137,10 +145,9 @@ end
 
 # Sends credentials to log in
 post '/users/signin' do
-  credentials = load_user_credentials
   username = params[:username]
 
-  if credentials.key?(username) && credentials[username] == params[:password]
+  if valid_credentials?(username, params[:password])
     session[:username] = username
     session[:message]  = "Welcome!"
     redirect '/'
