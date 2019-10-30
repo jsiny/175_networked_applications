@@ -42,10 +42,11 @@ class CMSTest < Minitest::Test
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
     %w(about.md changes.txt history.txt).each do |file|
       assert_includes last_response.body, file
+      assert_includes last_response.body, "<a href=\"/#{file}/edit\">"
+      assert_includes last_response.body, "action='/#{file}/destroy'"
+      assert_includes last_response.body, "action='/#{file}/copy'"
     end
-    assert_includes last_response.body, "Edit</a>"
     assert_includes last_response.body, "New Document</a>"
-    assert_includes last_response.body, "Delete</button>"
     assert_includes last_response.body, "Sign In"
   end
 
@@ -197,6 +198,21 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "You have been signed out."
     assert_includes last_response.body, "Sign In"
     refute_includes last_response.body, "Sign Out"    
+  end
+
+  def test_duplicating_document_signed_in
+    post '/changes.txt/copy', {}, admin_session
+    assert_equal 302, last_response.status
+    assert_equal "changes.txt was duplicated.", session[:message]
+
+    get '/'
+    assert_includes last_response.body, "changes-copy.txt"
+  end
+
+  def test_duplicating_document_signed_out
+    post '/changes.txt/copy'
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:message]
   end
 
   def teardown

@@ -75,6 +75,12 @@ def valid_credentials?(username, password)
   BCrypt::Password.new(credentials[username]) == params[:password]
 end
 
+def copy_filename(file)
+  base_name = File.basename(file, '.*')
+  extension = File.extname(file)
+  base_name + '-copy' + extension
+end
+
 # Access list of files
 get '/' do
   erb :index
@@ -101,6 +107,18 @@ post '/create' do
     session[:message] = "#{name} was created."
     redirect '/'
   end
+end
+
+# Duplicate document
+post '/:file/copy' do
+  require_signed_in_user
+
+  new_file = copy_filename(@file)
+  content = File.read(@file_path)
+
+  File.write(File.join(data_path, new_file), content)
+  session[:message] = "#{@file} was duplicated."
+  redirect '/'
 end
 
 # Delete a document
