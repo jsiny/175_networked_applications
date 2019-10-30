@@ -41,9 +41,37 @@ def load_file_content(file)
   end
 end
 
+def error_message_for_incorrect_name(file)
+  if file.empty?
+    "A name is required."
+  elsif File.extname(file).empty?
+    "A file must have an extension (.txt or .md)"
+  end
+end
+
 # Access list of files
 get '/' do
   erb :index
+end
+
+# New document
+get '/new' do
+  erb :new
+end
+
+# Create new document
+post '/create' do
+  name = params[:name].to_s
+  session[:message] = error_message_for_incorrect_name(name)
+
+  if session[:message]
+    status 422
+    erb :new
+  else
+    File.write(File.join(data_path, name), "")
+    session[:message] = "#{name} was created."
+    redirect '/'
+  end
 end
 
 # View a specific file
@@ -51,7 +79,7 @@ get '/:file' do
   if @files.include?(@file)
     load_file_content(@file_path)
   else
-    session['message'] = "#{@file} does not exist."
+    session[:message] = "#{@file} does not exist."
     status = 404
   end
 end
@@ -66,7 +94,7 @@ end
 post '/:file' do
   File.write(@file_path, params[:content])
 
-  session['message'] = "#{@file} has been updated."
+  session[:message] = "#{@file} has been updated."
   redirect '/'
 end
 
