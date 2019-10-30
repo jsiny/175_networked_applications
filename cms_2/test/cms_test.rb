@@ -34,7 +34,8 @@ class CMSTest < Minitest::Test
     %w(about.md changes.txt history.txt).each do |file|
       assert_includes last_response.body, file
     end
-    assert_includes last_response.body, "Edit"
+    assert_includes last_response.body, "Edit</a>"
+    assert_includes last_response.body, "New Document</a>"
   end
 
   def test_access_history
@@ -82,6 +83,39 @@ class CMSTest < Minitest::Test
 
     get '/changes.txt'
     assert_includes last_response.body, "new content"
+  end
+
+  def test_new_document_page
+    get '/new'
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Add a new document:"
+    assert_includes last_response.body, "<input"
+    assert_includes last_response.body, %q(<button type="submit")
+  end
+
+  def test_create_new_document
+    post '/new', name: 'new_file.txt'
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "new_file.txt was created."
+
+    get '/'
+    assert_includes last_response.body, "new_file.txt"
+  end
+
+  def test_attempt_to_create_empty_document
+    post '/new', name: ''
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "A name is required"
+  end
+
+  def test_attempt_to_create_document_without_extension
+    post '/new', name: 'file'
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "A file must have an extension"
   end
 
   def teardown
