@@ -49,6 +49,17 @@ def error_message_for_incorrect_name(file)
   end
 end
 
+def signed_in?
+  session.key?(:username)
+end
+
+def require_signed_in_user
+  unless signed_in?
+    session[:message] = "You must be signed in to do that."
+    redirect '/'
+  end
+end
+
 # Access list of files
 get '/' do
   erb :index
@@ -56,11 +67,14 @@ end
 
 # New document
 get '/new' do
+  require_signed_in_user
   erb :new
 end
 
 # Create new document
 post '/create' do
+  require_signed_in_user
+
   name = params[:name].to_s
   session[:message] = error_message_for_incorrect_name(name)
 
@@ -76,6 +90,8 @@ end
 
 # Delete a document
 post '/:file/destroy' do
+  require_signed_in_user
+
   File.delete(@file_path)
   session[:message] = "#{@file} was deleted."
   redirect '/'
@@ -93,12 +109,14 @@ end
 
 # Edit a file
 get '/:file/edit' do
+  require_signed_in_user
   @content = File.read(@file_path)
   erb :edit
 end
 
 # Save changes to a file
 post '/:file' do
+  require_signed_in_user
   File.write(@file_path, params[:content])
 
   session[:message] = "#{@file} has been updated."
