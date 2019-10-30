@@ -2,6 +2,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'tilt/erubis'
 require 'redcarpet'
+require 'yaml'
 
 root = File.expand_path("..", __FILE__)
 
@@ -58,6 +59,12 @@ def require_signed_in_user
     session[:message] = "You must be signed in to do that."
     redirect '/'
   end
+end
+
+def load_user_credentials
+  path = ENV['RACK_ENV'] == 'test' ? '../test/users.yml' : '../users.yml'
+  credentials_path = File.expand_path(path, __FILE__)
+  YAML.load_file(credentials_path)
 end
 
 # Access list of files
@@ -130,10 +137,10 @@ end
 
 # Sends credentials to log in
 post '/users/signin' do
+  credentials = load_user_credentials
   username = params[:username]
-  password = params[:password]
 
-  if username == 'admin' && password == 'secret'
+  if credentials.key?(username) && credentials[username] == params[:password]
     session[:username] = username
     session[:message]  = "Welcome!"
     redirect '/'
