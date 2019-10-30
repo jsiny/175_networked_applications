@@ -4,7 +4,11 @@ require 'tilt/erubis'
 require 'redcarpet'
 
 root = File.expand_path("..", __FILE__)
-data_path = root + '/data/'
+
+def data_path
+  path = ENV['RACK_ENV'] == 'test' ? '../test/data/' : '../data/'
+  File.expand_path(path, __FILE__)
+end
 
 configure do
   enable :sessions
@@ -12,12 +16,12 @@ configure do
 end
 
 before do
-  @files = Dir.glob(data_path + '*').map { |path| File.basename(path) }
+  @files = Dir.glob(File.join(data_path, '*')).map { |path| File.basename(path) }
 end
 
 before '/:file*' do
   @file = params[:file]
-  @file_path = data_path + @file
+  @file_path = File.join(data_path, @file)
 end
 
 def render_markdown(markdown_text)
