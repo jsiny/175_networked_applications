@@ -20,6 +20,7 @@ class CMSTest < Minitest::Test
     %w(about.md changes.txt history.txt).each do |file|
       assert_includes last_response.body, file
     end
+    assert_includes last_response.body, "Edit"
   end
 
   def test_access_history
@@ -47,5 +48,25 @@ class CMSTest < Minitest::Test
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
     assert_includes last_response.body, "<strong>Barbara Joan"
+  end
+
+  def test_access_edit_page
+    get '/changes.txt/edit'
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<textarea"
+    assert_includes last_response.body, %q(<button type="submit")
+  end
+
+  def test_update_content
+    post 'changes.txt', content: "new content"
+    assert_equal 302, last_response.status
+    
+    get last_response["Location"]
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "changes.txt has been updated."
+
+    get '/changes.txt'
+    assert_includes last_response.body, "new content"
   end
 end

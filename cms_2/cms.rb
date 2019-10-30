@@ -4,7 +4,7 @@ require 'tilt/erubis'
 require 'redcarpet'
 
 root = File.expand_path("..", __FILE__)
-data = root + '/data/'
+data_path = root + '/data/'
 
 configure do
   enable :sessions
@@ -12,7 +12,12 @@ configure do
 end
 
 before do
-  @files = Dir.glob(data + '*').map { |path| File.basename(path) }
+  @files = Dir.glob(data_path + '*').map { |path| File.basename(path) }
+end
+
+before '/:file*' do
+  @file = params[:file]
+  @file_path = data_path + @file
 end
 
 def render_markdown(markdown_text)
@@ -32,20 +37,36 @@ def load_file_content(file)
   end
 end
 
+# Access list of files
 get '/' do
   erb :index
 end
 
+# View a specific file
 get '/:file' do
-  file = params[:file]
-  if @files.include?(file)
-    load_file_content(data + file)
+  if @files.include?(@file)
+    load_file_content(@file_path)
   else
-    session['message'] = "#{file} does not exist."
+    session['message'] = "#{@file} does not exist."
     status = 404
   end
 end
 
+# Edit a file
+get '/:file/edit' do
+  @content = File.read(@file_path)
+  erb :edit
+end
+
+# Save changes to a file
+post '/:file' do
+  File.write(@file_path, params[:content])
+
+  session['message'] = "#{@file} has been updated."
+  redirect '/'
+end
+
+# 404
 not_found do
   redirect '/'
 end
