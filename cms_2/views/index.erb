@@ -3,6 +3,9 @@
     <li>
       <a href="/<%= file %>"><%= file %></a>
       <a href="/<%= file %>/edit">Edit</a>
+      <form class='inline' action='/<%= file %>/copy' method='post'>
+        <button type='submit'>Duplicate</button>
+      </form>
       <form class='inline' action='/<%= file %>/destroy' method='post'>
         <button type='submit'>Delete</button>
       </form>
