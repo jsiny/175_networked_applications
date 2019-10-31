@@ -15,7 +15,7 @@ class CMSTest < Minitest::Test
   end
 
   def setup
-    FileUtils.mkdir_p(data_path)
+    FileUtils.mkdir_p(path('data'))
 
     create_document("about.md", "<strong>Barbara Joan")
     create_document "changes.txt"
@@ -23,7 +23,7 @@ class CMSTest < Minitest::Test
   end
 
   def create_document(name, content = '')
-    File.open(File.join(data_path, name), 'w') do |file|
+    File.open(File.join(path('data'), name), 'w') do |file|
       file.write(content)
     end
   end
@@ -216,6 +216,6 @@ class CMSTest < Minitest::Test
   end
 
   def teardown
-    FileUtils.rm_rf(data_path)
+    FileUtils.rm_rf(path('data'))
   end
 end

@@ -7,23 +7,23 @@ require 'bcrypt'
 
 root = File.expand_path("..", __FILE__)
 
-def data_path
-  path = ENV['RACK_ENV'] == 'test' ? '../test/data/' : '../data/'
-  File.expand_path(path, __FILE__)
-end
-
 configure do
   enable :sessions
   set :session_secret, 'super secret'
 end
 
 before do
-  @files = Dir.glob(File.join(data_path, '*')).map { |path| File.basename(path) }
+  @files = Dir.glob(File.join(path('data'), '*')).map { |path| File.basename(path) }
 end
 
 before '/:file*' do
   @file = params[:file]
-  @file_path = File.join(data_path, @file)
+  @file_path = File.join(path('data'), @file)
+end
+
+def path(file)
+  path = ENV['RACK_ENV'] == 'test' ? "../test/#{file}" : "../#{file}"
+  File.expand_path(path, __FILE__)
 end
 
 def render_markdown(markdown_text)
@@ -103,7 +103,7 @@ post '/create' do
     status 422
     erb :new
   else
-    File.write(File.join(data_path, name), "")
+    File.write(File.join(path('data'), name), "")
     session[:message] = "#{name} was created."
     redirect '/'
   end
@@ -116,7 +116,7 @@ post '/:file/copy' do
   new_file = copy_filename(@file)
   content = File.read(@file_path)
 
-  File.write(File.join(data_path, new_file), content)
+  File.write(File.join(path('data'), new_file), content)
   session[:message] = "#{@file} was duplicated."
   redirect '/'
 end
@@ -190,7 +190,7 @@ end
 
 # Create user account
 post '/users/create' do
-  yaml_file = File.join(root, 'users.yml')
+  yaml_file = path('users.yml')
   users = YAML::load_file(yaml_file)
 
   username = params[:username]
