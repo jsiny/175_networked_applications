@@ -183,6 +183,28 @@ post '/users/signout' do
   redirect '/'
 end
 
+# Sign up form
+get '/users/new' do
+  erb :signup
+end
+
+# Create user account
+post '/users/create' do
+  yaml_file = File.join(root, 'users.yml')
+  users = YAML::load_file(yaml_file)
+
+  # File.write(File.join(root, 'users.yml'), content)
+
+  # content = { params[:username] => params[:password] }
+  users[params[:username]] = params[:password].to_s
+  content = YAML.dump(users)
+  File.write(yaml_file, content)
+
+  # File.open(File.join(root, 'users.yml'), "w") do |f|
+  #   f.write(content.to_yaml)
+  # end
+end
+
 # 404
 not_found do
   redirect '/'
