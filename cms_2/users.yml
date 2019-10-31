@@ -1,3 +1,25 @@
 ---
-juliette: "$2a$12$jccGuG0VQRX7i5rM2AJN.uq7Iroj0rUBeZ5TPLGb5UUxP5pTAIWam"
-maya: kitsu
+test: !ruby/string:BCrypt::Password
+  str: "$2a$12$Clx60XJ4J/Ftsla/wqlCLeLXLS/jCun5pWQliO.79dawiPq89/yAK"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$Clx60XJ4J/Ftsla/wqlCLe"
+  checksum: LXLS/jCun5pWQliO.79dawiPq89/yAK
+Juliette: !ruby/string:BCrypt::Password
+  str: "$2a$12$66FNKZLEROPCwDa09NGVN.u5u3/IHqcQi4MM6P86Ekhk9XicT12me"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$66FNKZLEROPCwDa09NGVN."
+  checksum: u5u3/IHqcQi4MM6P86Ekhk9XicT12me
+Maya: !ruby/string:BCrypt::Password
+  str: "$2a$12$Lgcs/4WBHBpzZiyBBXqhCuD1o1GO.WPPOvxvzxKRbGqy4DFTrLEJ2"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$Lgcs/4WBHBpzZiyBBXqhCu"
+  checksum: D1o1GO.WPPOvxvzxKRbGqy4DFTrLEJ2
+Hervé: !ruby/string:BCrypt::Password
+  str: "$2a$12$A4GEofkliE1aw0RgfWRN2.ppJD2X9OdtcUzUTNiNdLQINPlqjeZsO"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$A4GEofkliE1aw0RgfWRN2."
+  checksum: ppJD2X9OdtcUzUTNiNdLQINPlqjeZsO
