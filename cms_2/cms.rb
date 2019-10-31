@@ -193,16 +193,14 @@ post '/users/create' do
   yaml_file = File.join(root, 'users.yml')
   users = YAML::load_file(yaml_file)
 
-  # File.write(File.join(root, 'users.yml'), content)
+  username = params[:username]
+  encrypted_password = BCrypt::Password.create(params[:password])
+  users[username] = encrypted_password
 
-  # content = { params[:username] => params[:password] }
-  users[params[:username]] = params[:password].to_s
-  content = YAML.dump(users)
-  File.write(yaml_file, content)
-
-  # File.open(File.join(root, 'users.yml'), "w") do |f|
-  #   f.write(content.to_yaml)
-  # end
+  File.write(yaml_file, users.to_yaml)
+  session[:username] = params[:username]
+  session[:message] = "Welcome, #{username}!"
+  redirect '/'
 end
 
 # 404
