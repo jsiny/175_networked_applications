@@ -75,6 +75,16 @@ def valid_credentials?(username, password)
   BCrypt::Password.new(credentials[username]) == params[:password]
 end
 
+def error_for_invalid_subscription(username, password)
+  if signed_in?
+    "You already have an account."
+  elsif username.empty?
+    "Your name must not be empty."
+  elsif password.empty?
+    "Your password must not be empty."
+  end
+end
+
 def copy_filename(file)
   base_name = File.basename(file, '.*')
   extension = File.extname(file)
@@ -194,12 +204,18 @@ post '/users/create' do
   users = YAML::load_file(yaml_file)
 
   username = params[:username]
-  encrypted_password = BCrypt::Password.create(params[:password])
+  password = params[:password]
+  encrypted_password = BCrypt::Password.create(password)
   users[username] = encrypted_password
 
-  File.write(yaml_file, users.to_yaml)
-  session[:username] = params[:username]
-  session[:message] = "Welcome, #{username}!"
+  session[:message] = error_for_invalid_subscription(username, password)
+
+  unless session[:message]
+    File.write(yaml_file, users.to_yaml)
+    session[:username] = username
+    session[:message] = "Welcome, #{username}!"
+  end
+
   redirect '/'
 end
 

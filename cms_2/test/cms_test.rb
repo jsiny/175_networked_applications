@@ -235,13 +235,40 @@ class CMSTest < Minitest::Test
   end
 
   def test_create_user_account
-    post 'users/signin', { username: 'test', password: 'secret' }
-    assert_nil session[:username]
-
     post 'users/create', { username: 'test', password: 'secret' }
     assert_equal 302, last_response.status
     assert_equal "test", session[:username]
     assert_equal "Welcome, test!", session[:message]
+  end
+
+  def test_create_user_account_signed_in
+    post 'users/create', { username: 'test', password: 'secret' }, admin_session
+    assert_equal 302, last_response.status
+    assert_equal "You already have an account.", session[:message]
+    assert_equal "admin", session[:username]
+
+    post 'users/signout'
+    post 'users/signin', { username: 'test', password: 'secret' }
+    assert_nil session[:username]
+  end
+
+  def test_deletion_test_users_yaml
+    post 'users/signin', { username: 'test', password: 'secret' }
+    assert_nil session[:username]
+  end
+
+  def test_create_user_account_empty_username
+    post 'users/create', { username: '', password: 'secret' }
+    assert_equal 302, last_response.status
+    assert_equal "Your name must not be empty.", session[:message]
+    assert_nil session[:username]
+  end
+
+  def test_create_user_account_empty_password
+    post 'users/create', { username: 'test', password: '' }
+    assert_equal 302, last_response.status
+    assert_equal "Your password must not be empty.", session[:message]
+    assert_nil session[:username]
   end
 
   def teardown
