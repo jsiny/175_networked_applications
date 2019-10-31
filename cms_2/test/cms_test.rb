@@ -20,11 +20,21 @@ class CMSTest < Minitest::Test
     create_document("about.md", "<strong>Barbara Joan")
     create_document "changes.txt"
     create_document("history.txt", "Color Me Barbra")
+
+    create_users_yaml
   end
 
   def create_document(name, content = '')
     File.open(File.join(path('data'), name), 'w') do |file|
       file.write(content)
+    end
+  end
+
+  def create_users_yaml
+    users = { "admin" => "$2a$12$RlM1PDStokQMrciKxb1l0.C/1Uf/xRTirQ0kpiIq5S0erW0yTSiHm" }
+
+    File.open(path('users.yml'), 'w') do |file|
+      file.write(users.to_yaml)
     end
   end
 
@@ -48,6 +58,7 @@ class CMSTest < Minitest::Test
     end
     assert_includes last_response.body, "New Document</a>"
     assert_includes last_response.body, "Sign In"
+    assert_includes last_response.body, "Sign Up"
   end
 
   def test_access_history
@@ -197,6 +208,7 @@ class CMSTest < Minitest::Test
     get last_response['Location']
     assert_includes last_response.body, "You have been signed out."
     assert_includes last_response.body, "Sign In"
+    assert_includes last_response.body, "Sign Up"
     refute_includes last_response.body, "Sign Out"    
   end
 
@@ -215,7 +227,25 @@ class CMSTest < Minitest::Test
     assert_equal "You must be signed in to do that.", session[:message]
   end
 
+  def test_access_signup_form
+    get '/users/new'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "action=\"/users/create\">"
+    assert_includes last_response.body, "Create account</button>"
+  end
+
+  def test_create_user_account
+    post 'users/signin', { username: 'test', password: 'secret' }
+    assert_nil session[:username]
+
+    post 'users/create', { username: 'test', password: 'secret' }
+    assert_equal 302, last_response.status
+    assert_equal "test", session[:username]
+    assert_equal "Welcome, test!", session[:message]
+  end
+
   def teardown
     FileUtils.rm_rf(path('data'))
+    FileUtils.rm(path('users.yml'))
   end
 end
